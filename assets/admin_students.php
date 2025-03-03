@@ -17,10 +17,8 @@ if (isset($_GET['delete_id'])) {
     exit();
 }
 
-// Fetch all users from the database
-$student_result = $conn->query("
-    SELECT id, fullname, username, user_type FROM users
-");
+// Fetch all users from the database, including password (in plain text)
+$student_result = $conn->query("SELECT id, fullname, username, user_type, password FROM users");
 
 if ($student_result === false) {
     die("Error: " . $conn->error);
@@ -32,96 +30,110 @@ if ($student_result === false) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student List - Admin Panel</title>
+    <title>Manage Students - Admin Panel</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
             background: url('https://t4.ftcdn.net/jpg/03/30/99/59/360_F_330995960_bY9sCgdaQCq2AW7C8OODzxWeLmxuFDTg.jpg') no-repeat center center fixed;
             background-size: cover;
-            text-align: center;
         }
-        .header {
-            background: #343a40;
-            color: white;
-            padding: 15px;
-            font-size: 20px;
-        }
+
         .container {
-            max-width: 900px;
-            margin: 20px auto;
+            max-width: 1000px;
+            margin: 40px auto;
             padding: 20px;
-            background: rgba(255, 255, 255, 0.9);
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            border-radius: 8px;
+            overflow: hidden;
         }
-        table, th, td {
-            border: 1px solid black;
-            padding: 10px;
+        th, td {
+            padding: 12px;
+            text-align: center;
         }
         th {
             background: #007bff;
             color: white;
         }
-        .nav {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 20px;
+        tr:nth-child(even) {
+            background: #f2f2f2;
         }
-        .nav a {
-            text-decoration: none;
-            color: #007bff;
-            font-size: 18px;
+        tr:hover {
+            background: #e9ecef;
         }
-        .edit-btn, .delete-btn {
-            padding: 5px 10px;
+
+        .btn-action {
+            padding: 8px 12px;
             border: none;
             border-radius: 5px;
-            cursor: pointer;
             font-size: 14px;
+            transition: 0.3s ease-in-out;
         }
-        .edit-btn {
+        .btn-edit {
             background: #ffc107;
             color: black;
         }
-        .delete-btn {
+        .btn-edit:hover {
+            background: #e0a800;
+        }
+        .btn-delete {
             background: #dc3545;
             color: white;
         }
-        @media (max-width: 768px) {
-            .container {
-                width: 95%;
-                padding: 10px;
-            }
+        .btn-delete:hover {
+            background: #c82333;
         }
     </style>
 </head>
 <body>
-    <div class="header">Admin Panel - Student List</div>
-    <div class="container">
-        <h2>List of Users</h2>
-        <div class="nav">
-            <a href="admin_dashboard.php">Dashboard</a>
-            <a href="admin_scoreboard.php">Scoreboard</a>
-            <a href="admin_students.php">List of Students</a>
-            <a href="admin_logout.php">Logout</a>
-        </div>
 
-        <table>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Admin Panel</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="admin_dashboard.php">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="admin_students.php">Manage Students</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="admin_scoreboard.php">Scoreboard</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Content -->
+<div class="container">
+    <h2 class="text-center">Student List</h2>
+    <table class="table table-bordered">
+        <thead>
             <tr>
                 <th>ID</th>
                 <th>Full Name</th>
                 <th>Username</th>
                 <th>Type</th>
+                <th>Password</th> <!-- Added column for password -->
                 <th>Actions</th>
             </tr>
+        </thead>
+        <tbody>
             <?php while ($row = $student_result->fetch_assoc()) { ?>
                 <tr>
                     <td><?php echo htmlspecialchars($row['id']); ?></td>
@@ -130,21 +142,95 @@ if ($student_result === false) {
                     <td>
                         <?php 
                         echo ($row['user_type'] === "Student") 
-                            ? "<span style='color: green;'>Student</span>" 
-                            : "<span style='color: red;'>Not Student</span>"; 
+                            ? "<span class='text-success fw-bold'>Student</span>" 
+                            : "<span class='text-danger fw-bold'>Not Student</span>"; 
                         ?>
                     </td>
+                    <td><?php echo htmlspecialchars($row['password']); ?></td> <!-- Display password -->
                     <td>
-                        <a href="edit_student.php?id=<?php echo $row['id']; ?>">
-                            <button class="edit-btn">Edit</button>
-                        </a>
+                        <!-- Edit Button (Triggers Modal) -->
+                        <button class="btn-action btn-edit" data-bs-toggle="modal" data-bs-target="#editModal" data-id="<?php echo $row['id']; ?>" data-fullname="<?php echo $row['fullname']; ?>" data-username="<?php echo $row['username']; ?>" data-usertype="<?php echo $row['user_type']; ?>" data-password="<?php echo $row['password']; ?>">Edit</button>
+                        <!-- Delete Button -->
                         <a href="admin_students.php?delete_id=<?php echo $row['id']; ?>" onclick="return confirm('Are you sure?');">
-                            <button class="delete-btn">Delete</button>
+                            <button class="btn-action btn-delete">Delete</button>
                         </a>
                     </td>
                 </tr>
             <?php } ?>
-        </table>
+        </tbody>
+    </table>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editModalLabel">Edit User</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="edit_student.php" method="POST">
+            <input type="hidden" name="id" id="userId">
+            <div class="mb-3">
+                <label for="fullname" class="form-label">Full Name</label>
+                <input type="text" class="form-control" name="fullname" id="fullname" required>
+            </div>
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" name="username" id="username" required>
+            </div>
+            <div class="mb-3">
+                <label for="usertype" class="form-label">User Type</label>
+                <select class="form-select" name="user_type" id="usertype" required>
+                    <option value="Student">Student</option>
+                    <option value="Admin">Admin</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" name="password" id="password">
+                <button type="button" class="btn btn-link" id="viewPasswordBtn" onclick="togglePassword()">View Password</button>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+      </div>
     </div>
+  </div>
+</div>
+
+<script>
+    // Pass data from the button to the modal
+    var editButtons = document.querySelectorAll('.btn-edit');
+    editButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            var userId = button.getAttribute('data-id');
+            var fullname = button.getAttribute('data-fullname');
+            var username = button.getAttribute('data-username');
+            var userType = button.getAttribute('data-usertype');
+            var password = button.getAttribute('data-password');
+            
+            document.getElementById('userId').value = userId;
+            document.getElementById('fullname').value = fullname;
+            document.getElementById('username').value = username;
+            document.getElementById('usertype').value = userType;
+            document.getElementById('password').value = password;
+        });
+    });
+
+    // Toggle password visibility
+    function togglePassword() {
+        var passwordField = document.getElementById("password");
+        var passwordFieldType = passwordField.type;
+        if (passwordFieldType === "password") {
+            passwordField.type = "text";
+            document.getElementById("viewPasswordBtn").innerText = "Hide Password";
+        } else {
+            passwordField.type = "password";
+            document.getElementById("viewPasswordBtn").innerText = "View Password";
+        }
+    }
+</script>
+
 </body>
 </html>

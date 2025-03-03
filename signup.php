@@ -1,4 +1,7 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 include 'database/config.php'; // Ensure correct path
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -36,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (!$stmt) {
                 die("Error preparing stmt: " . $conn->error);
             }
-
+            
             $stmt->bind_param("ssss", $fullname, $username, $hashedPassword, $userType);
             
             if ($stmt->execute()) {

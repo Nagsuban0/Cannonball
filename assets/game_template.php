@@ -9,7 +9,7 @@ session_start();
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header("Location: ../login.html");
+    header("Location: ../login.php");
     exit();
 }
 
@@ -20,13 +20,11 @@ $fullname = "Unknown User"; // Default value if query fails
 // Fetch user full name
 $userQuery = "SELECT fullname FROM users WHERE id = ?";
 $stmt = mysqli_prepare($conn, $userQuery);
-
 if ($stmt) {
     mysqli_stmt_bind_param($stmt, "i", $user_id);
     mysqli_stmt_execute($stmt);
     mysqli_stmt_bind_result($stmt, $fullname);
     if (!mysqli_stmt_fetch($stmt)) {
-        // Handle error fetching data
         error_log("No user found with ID: " . $user_id);
     }
     mysqli_stmt_close($stmt);
@@ -49,7 +47,6 @@ $result = mysqli_stmt_get_result($stmt);
 
 if ($result && mysqli_num_rows($result) > 0) {
     $questionData = mysqli_fetch_assoc($result);
-    
     $question = $questionData['question'];
     $correctAnswer = $questionData['correct_answer'];
     $options = [
@@ -58,11 +55,10 @@ if ($result && mysqli_num_rows($result) > 0) {
         $questionData['option3'],
         $questionData['option4']
     ];
-
-    shuffle($options); // Shuffle options for random order
+    shuffle($options);
 } else {
-    // Redirect to the scoreboard if no question found
-    header("Location: ../game_template.php");
+    // If no question is found, redirect to student dashboard
+    header("Location: ./student_dashboard.php");
     exit();
 }
 
@@ -76,7 +72,6 @@ $nextLevelExists = $nextLevelResult && mysqli_fetch_assoc($nextLevelResult)['cou
 
 mysqli_close($conn);
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -157,7 +152,7 @@ mysqli_close($conn);
         let chestImg = new Image();
         chestImg.src = "https://static.vecteezy.com/system/resources/thumbnails/044/026/397/small_2x/red-treasure-chest-illustration-pirate-box-game-achievement-success-gift-antique-trunk-ui-winner-bonus-reward-vintage-chest-png.png";
 
-        let cannonPos = { x: 100, y: canvas.height - 150 };
+        let cannonPos = { x: 100, y: canvas.height - 90 };
         let targetAngle = 0;
 
         let currentQuestion = { 
@@ -179,10 +174,10 @@ mysqli_close($conn);
 
             // Draw chests with answers
             chests.forEach(chest => {
-                ctx.drawImage(chestImg, chest.x, chest.y, 100, 100);
-                ctx.font = "40px Arial";
+                ctx.drawImage(chestImg, chest.x, chest.y, -130, 80);
+                ctx.font = "20px Arial";
                 ctx.fillStyle = "black";
-                ctx.fillText(chest.answer, chest.x + 100, chest.y + 60);
+                ctx.fillText(chest.answer, chest.x - 200, chest.y + 90);
             });
 
             // Draw wheel
@@ -192,13 +187,13 @@ mysqli_close($conn);
             ctx.save();
             ctx.translate(cannonPos.x, cannonPos.y);
             ctx.rotate(targetAngle);
-            ctx.drawImage(cannonImg, 16, -60, 150, 100);
+            ctx.drawImage(cannonImg, 5, -90, 100, 100);
             ctx.restore();
 
             // Draw cannonballs
             cannonballs.forEach((ball, index) => {
                 ctx.beginPath();
-                ctx.arc(ball.x, ball.y, 30, 0, Math.PI * 2);
+                ctx.arc(ball.x, ball.y, 20, -100, Math.PI * 2);
                 ctx.fillStyle = "black";
                 ctx.fill();
 
@@ -214,7 +209,7 @@ mysqli_close($conn);
                     ) {
                         setTimeout(() => {
                             if (chest.answer === currentQuestion.correctAnswer) {
-                                alert("✅ Correct! Moving to next level...");
+                                alert("✅ Moving to next level...");
 
                                 // Update score through AJAX (sending 10 points per level)
                                 fetch('./update_score.php', {
@@ -232,12 +227,12 @@ mysqli_close($conn);
                                     if (nextLevelExists) {
                                         window.location.href = `game_template.php?level=<?php echo $nextLevel; ?>`;
                                     } else {
-                                        window.location.href = "./admin_scoreboard.php";
+                                        window.location.href = "./student_dashboard.php";
                                     }
                                 })
                                 .catch(error => console.error('Error:', error));
                             } else {
-                                alert("❌ Wrong Answer! Try again.");
+                                alert("✅ Moving to next level...");
                                 window.location.href = `game_template.php?level=<?php echo $nextLevel; ?>`;
                             }
                         }, 100);
@@ -275,7 +270,7 @@ mysqli_close($conn);
             let x = cannonPos.x, y = cannonPos.y;
             let dx = targetX - x;
             let dy = targetY - y;
-            let speed = 12;
+            let speed = 60;
             let angle = Math.atan2(dy, dx);
 
             let vx = Math.cos(angle) * speed;

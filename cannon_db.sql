@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 28, 2025 at 08:30 AM
+-- Generation Time: Mar 01, 2025 at 08:37 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 7.2.5
 
@@ -37,6 +37,16 @@ CREATE TABLE `questions` (
   `option3` varchar(255) NOT NULL,
   `option4` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `questions`
+--
+
+INSERT INTO `questions` (`id`, `game_level`, `question`, `correct_answer`, `option1`, `option2`, `option3`, `option4`) VALUES
+(17, 1, 'q1', 'q1', 'q1', 'q11', 'q111', 'q111'),
+(18, 2, 'q2', 'q2', 'q2', 'q222', 'q22', 'q2222'),
+(19, 3, '123', '123', '1', '123', '12', '2'),
+(20, 20, '12', '123', '12', '123', '1233', '1');
 
 -- --------------------------------------------------------
 
@@ -90,7 +100,14 @@ INSERT INTO `students` (`id`, `fullname`, `username`, `password`, `user_type`, `
 (23, '', '2', '', 'student', 'active', 0, '2'),
 (24, '', 'test1', '', 'student', 'active', 0, 'test1'),
 (25, '', 'qwe', '', 'student', 'active', 0, 'qwe'),
-(26, '', '1234', '', 'student', 'active', 0, '1234');
+(26, '', '1234', '', 'student', 'active', 0, '1234'),
+(27, '', 'student1', '', 'student', 'active', 0, 'student first'),
+(28, '', 'stundet2', '', 'student', 'active', 0, 'student second'),
+(29, '', 'test1', '', 'student', 'active', 0, 'test1'),
+(30, '', 'test2', '', 'student', 'active', 0, 'test2'),
+(31, '', '123', '', 'student', 'active', 0, '123'),
+(32, '', 'testd', '', 'student', 'active', 0, 'testdelete'),
+(33, '', 'student', '', 'student', 'active', 0, 'student');
 
 -- --------------------------------------------------------
 
@@ -105,20 +122,18 @@ CREATE TABLE `users` (
   `password` varchar(255) NOT NULL,
   `user_type` enum('Student','Not Student') NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `score` int(11) DEFAULT 0
+  `score` int(11) DEFAULT 0,
+  `profile_image` varchar(255) DEFAULT 'default-profile.png'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `fullname`, `username`, `password`, `user_type`, `created_at`, `score`) VALUES
-(17, '1', '1', '$2y$10$gpgHb/rQsJYl6toadFzCmOzzmc0OucBaTmIA3K5khf2JCRX8qcDDi', 'Student', '2025-02-28 05:38:08', 180),
-(18, '2', '2', '$2y$10$h5PH4Q7iwlz3v4B3S1XBAerxh7RGhqIOE4G.Bv5izWgwgNCDq4WFa', 'Student', '2025-02-28 05:38:29', 50),
-(19, 'test1', 'test1', '$2y$10$bgGBLAhlpZQUjyAuv4oageY/odgPW6xKPeA68VwHpaT7u7LswlS6i', 'Student', '2025-02-28 06:02:12', 20),
-(20, '123', '123', '$2y$10$CNa2TtVEyzk.OrtDwjoptuezhW/g9btB8fIfidCoaTb.eGEccd85u', 'Not Student', '2025-02-28 07:21:40', 0),
-(21, 'qwe', 'qwe', '$2y$10$MXOJFxT3dQL5.zEjYTJume.dvIucQXvUE6sxX0TbfEWDYRUCv0rru', 'Student', '2025-02-28 07:21:52', 0),
-(22, '1234', '1234', '$2y$10$gi.aX4pTU7trAo8TzrKjKO82FMOsIpN/1yLmBnROCvuw1mf4w12Ye', 'Student', '2025-02-28 07:22:22', 0);
+INSERT INTO `users` (`id`, `fullname`, `username`, `password`, `user_type`, `created_at`, `score`, `profile_image`) VALUES
+(29, 'testdelete', 'testd', '$2y$10$QucknirQ4E/cX8aGc9t8..WrM1AxYTJoCWuGqa4BBamROmuT3DfDS', 'Student', '2025-03-01 03:01:31', 20, 'default-profile.png'),
+(30, 'Admin', 'admin', '$2y$10$uM1GAcPy2TQ9wQouHWKciO6EeEnPRCRvJc6x2zpxqK4LKcUHotm9C', 'Not Student', '2025-03-01 06:21:26', 0, 'default-profile.png'),
+(31, 'student', 'student', '$2y$10$c6IG8GCPodzoE.lTLaoM.u1LhfmxOL3vCmHmM.nPfYRj8RfkwVHG.', 'Student', '2025-03-01 06:21:53', 20, 'default-profile.png');
 
 -- --------------------------------------------------------
 
@@ -182,7 +197,7 @@ ALTER TABLE `user_scores`
 -- AUTO_INCREMENT for table `questions`
 --
 ALTER TABLE `questions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `scoreboard`
@@ -200,13 +215,13 @@ ALTER TABLE `scores`
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT for table `user_scores`

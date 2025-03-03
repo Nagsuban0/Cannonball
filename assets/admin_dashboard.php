@@ -87,11 +87,12 @@ while ($row = $questions_result->fetch_assoc()) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f4f4; text-align: center; }
-        .navbar { background: #333; padding: 15px; display: flex; justify-content: center; gap: 20px; }
-        .navbar a { color: white; text-decoration: none; padding: 10px 15px; border-radius: 5px; transition: 0.3s; }
+        body { font-family: Arial, sans-serif; background: #f4f4f4; display: flex; flex-direction: column; align-items: center; }
+        .navbar { background: #333; padding: 5px; display: flex; justify-content: center; gap: 20px; width: 100%; }
+        .navbar a { color: white; text-decoration: none; padding:  15px; border-radius: 5px; transition: 0.3s; }
         .navbar a:hover { background: #555; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; margin-top: 20px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        .container { display: flex; justify-content: space-between; width: 80%; margin-top: 20px; }
+        .left, .right { width: 45%; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
         h2 { color: #333; }
         form { display: flex; flex-direction: column; gap: 10px; }
         label { font-weight: bold; text-align: left; }
@@ -112,64 +113,71 @@ while ($row = $questions_result->fetch_assoc()) {
         <a href="admin_dashboard.php">Admin Dashboard</a>
         <a href="admin_scoreboard.php">Admin Scoreboard</a>
         <a href="admin_students.php">Admin Students</a>
+        <a href="logout.php">Logout</a>
     </div>
 
     <div class="container">
-        <h2>Add a Question</h2>
-        <?php if (isset($_GET['success'])) { echo "<p class='message'>✅ Question added successfully!</p>"; } ?>
-        <?php if (isset($_GET['deleted'])) { echo "<p class='message'>🗑️ Question deleted successfully!</p>"; } ?>
+        <!-- Left Side: Add Question Form -->
+        <div class="left">
+            <h2>Add a Question</h2>
+            <?php if (isset($_GET['success'])) { echo "<p class='message'>✅ Question added successfully!</p>"; } ?>
+            <?php if (isset($_GET['deleted'])) { echo "<p class='message'>🗑️ Question deleted successfully!</p>"; } ?>
 
-        <form action="admin_dashboard.php" method="POST">
-            <label>Level:</label>
-            <select name="level" required>
-                <option value="">Select Level</option>
-                <?php for ($i = 1; $i <= 20; $i++) { ?>
-                    <option value="<?= $i; ?>">Level <?= $i; ?></option>
+            <form action="admin_dashboard.php" method="POST">
+                <label>Level:</label>
+                <select name="level" required>
+                    <option value="">Select Level</option>
+                    <?php for ($i = 1; $i <= 20; $i++) { ?>
+                        <option value="<?= $i; ?>">Level <?= $i; ?></option>
+                    <?php } ?>
+                </select>
+
+                <label>Question:</label>
+                <input type="text" name="question" required>
+
+                <label>Correct Answer:</label>
+                <input type="text" name="correct_answer" required>
+
+                <label>Option 1:</label>
+                <input type="text" name="option1" required>
+
+                <label>Option 2:</label>
+                <input type="text" name="option2" required>
+
+                <label>Option 3:</label>
+                <input type="text" name="option3" required>
+
+                <label>Option 4:</label>
+                <input type="text" name="option4" required>
+
+                <button type="submit">Add Question</button>
+            </form>
+        </div>
+
+        <!-- Right Side: Existing Questions Table -->
+        <div class="right">
+            <h2>Existing Questions</h2>
+            <table>
+                <tr>
+                    <th>ID</th>
+                    <th>Level</th>
+                    <th>Question</th>
+                    <th>Correct Answer</th>
+                    <th>Options</th>
+                    <th>Action</th>
+                </tr>
+                <?php foreach ($questions as $row) { ?>
+                <tr>
+                    <td><?= $row['id']; ?></td>
+                    <td><?= $row['game_level']; ?></td>
+                    <td><?= htmlspecialchars($row['question']); ?></td>
+                    <td><?= htmlspecialchars($row['correct_answer']); ?></td>
+                    <td><?= htmlspecialchars($row['option1']) . ", " . htmlspecialchars($row['option2']) . ", " . htmlspecialchars($row['option3']) . ", " . htmlspecialchars($row['option4']); ?></td>
+                    <td><a href="admin_dashboard.php?delete_id=<?= $row['id']; ?>" class="delete-btn" onclick="return confirm('Are you sure?');">Delete</a></td>
+                </tr>
                 <?php } ?>
-            </select>
-
-            <label>Question:</label>
-            <input type="text" name="question" required>
-
-            <label>Correct Answer:</label>
-            <input type="text" name="correct_answer" required>
-
-            <label>Option 1:</label>
-            <input type="text" name="option1" required>
-
-            <label>Option 2:</label>
-            <input type="text" name="option2" required>
-
-            <label>Option 3:</label>
-            <input type="text" name="option3" required>
-
-            <label>Option 4:</label>
-            <input type="text" name="option4" required>
-
-            <button type="submit">Add Question</button>
-        </form>
-
-        <h2>Existing Questions</h2>
-        <table>
-            <tr>
-                <th>ID</th>
-                <th>Level</th>
-                <th>Question</th>
-                <th>Correct Answer</th>
-                <th>Options</th>
-                <th>Action</th>
-            </tr>
-            <?php foreach ($questions as $row) { ?>
-            <tr>
-                <td><?= $row['id']; ?></td>
-                <td><?= $row['game_level']; ?></td>
-                <td><?= htmlspecialchars($row['question']); ?></td>
-                <td><?= htmlspecialchars($row['correct_answer']); ?></td>
-                <td><?= htmlspecialchars($row['option1']) . ", " . htmlspecialchars($row['option2']) . ", " . htmlspecialchars($row['option3']) . ", " . htmlspecialchars($row['option4']); ?></td>
-                <td><a href="admin_dashboard.php?delete_id=<?= $row['id']; ?>" class="delete-btn" onclick="return confirm('Are you sure?');">Delete</a></td>
-            </tr>
-            <?php } ?>
-        </table>
+            </table>
+        </div>
     </div>
 
 </body>

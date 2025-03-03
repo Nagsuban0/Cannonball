@@ -10,7 +10,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($username) || empty($password)) {
         $error = "Please enter both username and password.";
     } else {
-        // Prepare SQL statement to fetch user details and score
+        // Prepare SQL statement to fetch user details
         $stmt = $conn->prepare("SELECT id, username, password, user_type, score FROM users WHERE username = ?");
         $stmt->bind_param("s", $username);
         $stmt->execute();
@@ -28,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // Redirect based on user type
             if (strtolower($user["user_type"]) === "student") {
-                header("Location: assets/game_template.php"); // Redirect students to game page
+                header("Location: assets/student_dashboard.php"); // Redirect students to game page
             } else {
                 header("Location: assets/admin_dashboard.php"); // Redirect admins to dashboard
             }
